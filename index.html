@@ -1,0 +1,3697 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+256 Landscapes — Interactive Atlas
+</title>
+
+
+<style>
+
+/* =========================================================
+   BASIC SETUP
+========================================================= */
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+}
+
+body{
+  overflow:hidden;
+
+  background:#050505;
+
+  color:#f4f0e8;
+
+  font-family:
+  Arial,
+  Helvetica,
+  sans-serif;
+}
+
+
+/* =========================================================
+   MAIN PAGE
+========================================================= */
+
+#app{
+
+  position:relative;
+
+  width:100vw;
+  height:100vh;
+
+  overflow:hidden;
+
+  background:
+
+  radial-gradient(
+    circle at 50% 45%,
+    #181818 0%,
+    #080808 55%,
+    #020202 100%
+  );
+
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header{
+
+  position:absolute;
+
+  top:28px;
+  left:38px;
+  right:38px;
+
+  display:flex;
+
+  justify-content:space-between;
+
+  z-index:20;
+
+  pointer-events:none;
+
+}
+
+
+.logo{
+
+  font-size:10px;
+
+  letter-spacing:.28em;
+
+  line-height:1.7;
+
+}
+
+
+.logo span{
+
+  color:#747474;
+
+}
+
+
+.instructions{
+
+  text-align:right;
+
+  font-size:8px;
+
+  letter-spacing:.22em;
+
+  line-height:1.8;
+
+  color:#707070;
+
+}
+
+
+/* =========================================================
+   ERA
+========================================================= */
+
+#era{
+
+  position:absolute;
+
+  top:75px;
+  left:50%;
+
+  transform:
+  translateX(-50%);
+
+  z-index:20;
+
+  text-align:center;
+
+  pointer-events:none;
+
+}
+
+
+#era small{
+
+  display:block;
+
+  margin-bottom:8px;
+
+  color:#777;
+
+  font-size:8px;
+
+  letter-spacing:.27em;
+
+}
+
+
+#eraText{
+
+  font-family:
+  Georgia,
+  serif;
+
+  font-size:31px;
+
+}
+
+
+/* =========================================================
+   LEFT TEXT
+========================================================= */
+
+#intro{
+
+  position:absolute;
+
+  left:40px;
+
+  top:50%;
+
+  transform:
+  translateY(-50%);
+
+  width:170px;
+
+  z-index:20;
+
+  pointer-events:none;
+
+}
+
+
+.introLine{
+
+  width:30px;
+
+  border-top:
+  1px solid rgba(255,255,255,.5);
+
+  margin-bottom:17px;
+
+}
+
+
+#intro p{
+
+  margin:0;
+
+  font-family:
+  Georgia,
+  serif;
+
+  font-size:15px;
+
+  line-height:1.55;
+
+  color:#d4d0c8;
+
+}
+
+
+#intro small{
+
+  display:block;
+
+  margin-top:18px;
+
+  font-size:8px;
+
+  line-height:1.8;
+
+  letter-spacing:.17em;
+
+  color:#666;
+
+}
+
+
+/* =========================================================
+   THREE JS CONTAINER
+========================================================= */
+
+#earthContainer{
+
+  position:absolute;
+
+  inset:0;
+
+  z-index:1;
+
+}
+
+
+#earthContainer canvas{
+
+  display:block;
+
+  width:100%;
+  height:100%;
+
+}
+
+
+/* =========================================================
+   HOVER LABEL
+========================================================= */
+
+#hoverLabel{
+
+  position:fixed;
+
+  z-index:50;
+
+  padding:
+  7px 10px;
+
+  background:
+  rgba(0,0,0,.82);
+
+  color:white;
+
+  font-size:8px;
+
+  letter-spacing:.16em;
+
+  pointer-events:none;
+
+  opacity:0;
+
+  transform:
+  translate(
+    12px,
+    12px
+  );
+
+  transition:
+  opacity .15s ease;
+
+}
+
+
+#hoverLabel.visible{
+
+  opacity:1;
+
+}
+
+
+/* =========================================================
+   REGION PANEL
+========================================================= */
+
+#regionPanel{
+
+  position:absolute;
+
+  right:40px;
+
+  top:50%;
+
+  transform:
+  translateY(-50%);
+
+  width:210px;
+
+  z-index:30;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transition:
+  opacity .35s ease;
+
+}
+
+
+#regionPanel.visible{
+
+  opacity:1;
+
+  pointer-events:auto;
+
+}
+
+
+.panelLabel{
+
+  color:#777;
+
+  font-size:8px;
+
+  letter-spacing:.24em;
+
+}
+
+
+#regionName{
+
+  margin:
+  8px 0
+  8px;
+
+  font-family:
+  Georgia,
+  serif;
+
+  font-size:38px;
+
+  font-weight:normal;
+
+}
+
+
+#regionCount{
+
+  color:#aaa;
+
+  font-size:10px;
+
+  line-height:1.6;
+
+}
+
+
+#exploreButton{
+
+  margin-top:20px;
+
+  padding:
+  0 0 7px;
+
+  border:0;
+
+  border-bottom:
+  1px solid rgba(255,255,255,.8);
+
+  background:none;
+
+  color:white;
+
+  font-size:9px;
+
+  letter-spacing:.13em;
+
+  cursor:pointer;
+
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+#timelineArea{
+
+  position:absolute;
+
+  left:6vw;
+  right:6vw;
+
+  bottom:27px;
+
+  z-index:30;
+
+}
+
+
+.timelineYears{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  margin-bottom:8px;
+
+  color:#777;
+
+  font-size:8px;
+
+  letter-spacing:.12em;
+
+}
+
+
+#timeline{
+
+  width:100%;
+
+  cursor:pointer;
+
+  accent-color:#eeeae1;
+
+}
+
+
+.timelineBottom{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  margin-top:7px;
+
+  color:#5f5b55;
+
+  font-size:7px;
+
+  letter-spacing:.18em;
+
+}
+
+
+/* =========================================================
+   COLLECTION PAGE
+========================================================= */
+
+#collectionPage{
+
+  position:absolute;
+
+  inset:0;
+
+  z-index:100;
+
+  overflow-y:auto;
+
+  background:#efebe2;
+
+  color:#111;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transform:
+  translateY(25px);
+
+  transition:
+
+  opacity .65s ease,
+
+  transform .65s ease;
+
+}
+
+
+#collectionPage.open{
+
+  opacity:1;
+
+  pointer-events:auto;
+
+  transform:
+  translateY(0);
+
+}
+
+
+/* =========================================================
+   COLLECTION NAV
+========================================================= */
+
+.collectionNav{
+
+  padding:
+  30px 40px;
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+}
+
+
+#backButton{
+
+  border:0;
+
+  background:none;
+
+  color:#111;
+
+  cursor:pointer;
+
+  font-size:9px;
+
+  letter-spacing:.17em;
+
+}
+
+
+.collectionNumber{
+
+  color:#777;
+
+  font-size:8px;
+
+  letter-spacing:.18em;
+
+}
+
+
+/* =========================================================
+   COLLECTION HEADER
+========================================================= */
+
+.collectionHeader{
+
+  padding:
+
+  45px 8vw
+  65px;
+
+}
+
+
+#collectionTitle{
+
+  margin:0;
+
+  font-family:
+  Georgia,
+  serif;
+
+  font-size:
+
+  clamp(
+    70px,
+    11vw,
+    150px
+  );
+
+  font-weight:normal;
+
+  line-height:.82;
+
+}
+
+
+#collectionPeriod{
+
+  margin-top:30px;
+
+  color:#777;
+
+  font-size:9px;
+
+  letter-spacing:.27em;
+
+}
+
+
+#collectionDescription{
+
+  max-width:470px;
+
+  margin-top:25px;
+
+  font-family:
+  Georgia,
+  serif;
+
+  font-size:18px;
+
+  line-height:1.55;
+
+}
+
+
+/* =========================================================
+   ARTWORK GRID
+========================================================= */
+
+#artworkGrid{
+
+  padding:
+
+  20px 8vw
+  130px;
+
+  display:grid;
+
+  grid-template-columns:
+  repeat(
+    12,
+    1fr
+  );
+
+  gap:
+  70px 22px;
+
+}
+
+
+.artwork{
+
+  grid-column:
+  span 4;
+
+}
+
+
+.artwork.large{
+
+  grid-column:
+  span 7;
+
+}
+
+
+.artwork.small{
+
+  grid-column:
+  span 3;
+
+}
+
+
+.artwork.offset{
+
+  margin-top:100px;
+
+}
+
+
+/* =========================================================
+   ARTWORK PLACEHOLDERS
+========================================================= */
+
+.artImage{
+
+  position:relative;
+
+  width:100%;
+
+  aspect-ratio:
+  4 / 3;
+
+  overflow:hidden;
+
+  background:#aaa;
+
+}
+
+
+.artImage img{
+  position:relative;
+  z-index:2;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.artDescription{
+  max-width:320px;
+  margin-top:9px;
+  color:#555;
+  font-family:Georgia, serif;
+  font-size:11px;
+  line-height:1.5;
+}
+
+.artImage::before{
+
+  content:"";
+
+  position:absolute;
+
+  inset:0;
+
+  background:
+
+  linear-gradient(
+    155deg,
+    #263337,
+    #82918e 45%,
+    #c8b794
+  );
+
+}
+
+
+.artwork:nth-child(2n)
+.artImage::before{
+
+  background:
+
+  linear-gradient(
+    25deg,
+    #303835,
+    #788177,
+    #d3c4a4
+  );
+
+}
+
+
+.artwork:nth-child(3n)
+.artImage::before{
+
+  background:
+
+  linear-gradient(
+    140deg,
+    #202a30,
+    #899a9d,
+    #d2bea0
+  );
+
+}
+
+
+.artNumber{
+
+  margin-top:10px;
+
+  color:#888;
+
+  font-size:7px;
+
+  letter-spacing:.18em;
+
+}
+
+
+.artTitle{
+
+  margin-top:5px;
+
+  font-family:
+  Georgia,
+  serif;
+
+  font-size:16px;
+
+}
+
+
+.artMeta{
+
+  margin-top:4px;
+
+  color:#777;
+
+  font-size:9px;
+
+  line-height:1.5;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:800px){
+
+  header{
+
+    left:20px;
+    right:20px;
+
+  }
+
+
+  #intro{
+
+    display:none;
+
+  }
+
+
+  #regionPanel{
+
+    right:20px;
+
+    top:35%;
+
+    width:145px;
+
+  }
+
+
+  #regionName{
+
+    font-size:28px;
+
+  }
+
+
+  .collectionHeader{
+
+    padding:
+
+    40px 20px
+    50px;
+
+  }
+
+
+  #artworkGrid{
+
+    padding:
+
+    20px 20px
+    100px;
+
+  }
+
+
+  .artwork,
+  .artwork.large,
+  .artwork.small{
+
+    grid-column:
+    span 6;
+
+  }
+
+
+  .artwork.offset{
+
+    margin-top:40px;
+
+  }
+
+}
+
+</style>
+
+
+<!-- =======================================================
+IMPORT MAP
+
+This is the SAME loading method as the blue sphere
+that worked for you.
+======================================================= -->
+
+<script type="importmap">
+
+{
+  "imports": {
+
+    "three":
+    "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+
+    "three/addons/":
+    "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+
+  }
+}
+
+</script>
+
+</head>
+
+
+<body>
+
+
+<div id="app">
+
+
+<!-- ======================================================
+HEADER
+====================================================== -->
+
+<header>
+
+
+<div class="logo">
+
+256 LANDSCAPES
+
+<br>
+
+<span>
+AN ATLAS OF PLACE
+</span>
+
+</div>
+
+
+<div class="instructions">
+
+TIME × PLACE × IMAGE
+
+<br>
+
+DRAG THE EARTH TO EXPLORE
+
+</div>
+
+
+</header>
+
+
+
+<!-- ======================================================
+ERA
+====================================================== -->
+
+<div id="era">
+
+<small>
+SELECTED PERIOD
+</small>
+
+<div id="eraText">
+1200 — 1500
+</div>
+
+</div>
+
+
+
+<!-- ======================================================
+LEFT DESCRIPTION
+====================================================== -->
+
+<div id="intro">
+
+<div class="introLine">
+</div>
+
+<p>
+
+Landscapes emerge
+across different
+places and times.
+
+</p>
+
+<small>
+
+DRAG TO ROTATE
+
+<br>
+
+SCROLL TO ZOOM
+
+<br>
+
+MOVE THROUGH TIME
+
+</small>
+
+</div>
+
+
+
+<!-- ======================================================
+3D EARTH
+====================================================== -->
+
+<div id="earthContainer">
+</div>
+
+
+
+<!-- ======================================================
+HOVER LABEL
+====================================================== -->
+
+<div id="hoverLabel">
+ASIA
+</div>
+
+
+
+<!-- ======================================================
+REGION PANEL
+====================================================== -->
+
+<aside id="regionPanel">
+
+
+<div class="panelLabel">
+
+SELECTED REGION
+
+</div>
+
+
+<h2 id="regionName">
+
+Asia
+
+</h2>
+
+
+<div id="regionCount">
+
+42 works in collection
+
+</div>
+
+
+<button id="exploreButton">
+
+EXPLORE COLLECTION →
+
+</button>
+
+
+</aside>
+
+
+
+<!-- ======================================================
+TIMELINE
+====================================================== -->
+
+<div id="timelineArea">
+
+
+<div class="timelineYears">
+
+<span>1200</span>
+
+<span>1400</span>
+
+<span>1600</span>
+
+<span>1800</span>
+
+<span>1900</span>
+
+<span>2000</span>
+
+<span>2026</span>
+
+</div>
+
+
+<input
+
+id="timeline"
+
+type="range"
+
+min="1200"
+
+max="2026"
+
+value="1200"
+
+step="1"
+
+>
+
+
+<div class="timelineBottom">
+
+<span>
+EARLIER
+</span>
+
+<span>
+DRAG THROUGH TIME
+</span>
+
+<span>
+PRESENT
+</span>
+
+</div>
+
+
+</div>
+
+
+
+<!-- ======================================================
+COLLECTION PAGE
+====================================================== -->
+
+<section id="collectionPage">
+
+
+<div class="collectionNav">
+
+
+<button id="backButton">
+
+← RETURN TO EARTH
+
+</button>
+
+
+<div class="collectionNumber">
+
+256 LANDSCAPES
+
+</div>
+
+
+</div>
+
+
+
+<div class="collectionHeader">
+
+
+<h1 id="collectionTitle">
+
+ASIA
+
+</h1>
+
+
+<div id="collectionPeriod">
+
+1200 — 1500
+
+</div>
+
+
+<div id="collectionDescription">
+
+Landscapes connected
+to this region during
+the selected period.
+
+</div>
+
+
+</div>
+
+
+
+<div id="artworkGrid">
+</div>
+
+
+</section>
+
+
+</div>
+
+
+
+<script type="module">
+
+
+/* =========================================================
+IMPORT THREE.JS
+========================================================= */
+
+import * as THREE
+from "three";
+
+
+import {
+  OrbitControls
+}
+from
+"three/addons/controls/OrbitControls.js";
+
+
+
+/* =========================================================
+DOM
+========================================================= */
+
+const container =
+document.getElementById(
+  "earthContainer"
+);
+
+
+const timeline =
+document.getElementById(
+  "timeline"
+);
+
+
+const eraText =
+document.getElementById(
+  "eraText"
+);
+
+
+const hoverLabel =
+document.getElementById(
+  "hoverLabel"
+);
+
+
+const regionPanel =
+document.getElementById(
+  "regionPanel"
+);
+
+
+const regionName =
+document.getElementById(
+  "regionName"
+);
+
+
+const regionCount =
+document.getElementById(
+  "regionCount"
+);
+
+
+const exploreButton =
+document.getElementById(
+  "exploreButton"
+);
+
+
+const collectionPage =
+document.getElementById(
+  "collectionPage"
+);
+
+
+const collectionTitle =
+document.getElementById(
+  "collectionTitle"
+);
+
+
+const collectionPeriod =
+document.getElementById(
+  "collectionPeriod"
+);
+
+
+const collectionDescription =
+document.getElementById(
+  "collectionDescription"
+);
+
+
+const artworkGrid =
+document.getElementById(
+  "artworkGrid"
+);
+
+
+const backButton =
+document.getElementById(
+  "backButton"
+);
+
+
+
+/* =========================================================
+REGION INFORMATION
+
+These dates are DEMO DATA for your prototype.
+
+Later we will replace them with dates based on
+your actual 256-image archive.
+========================================================= */
+
+const regionData = {
+
+
+Asia:{
+
+  start:1200,
+
+  fullColor:1450,
+
+  count:42,
+
+  color:
+  new THREE.Color(
+    "#357fae"
+  ),
+
+  description:
+  "Landscape images connected to Asia across painting, photography, personal images and digital media."
+
+},
+
+
+Europe:{
+
+  start:1600,
+
+  fullColor:1850,
+
+  count:53,
+
+  color:
+  new THREE.Color(
+    "#34597d"
+  ),
+
+  description:
+  "Landscape images connected to Europe across painting, photography and digital media."
+
+},
+
+
+Africa:{
+
+  start:1750,
+
+  fullColor:1950,
+
+  count:27,
+
+  color:
+  new THREE.Color(
+    "#6e8c63"
+  ),
+
+  description:
+  "Landscape images connected to Africa across painting, photography and personal images."
+
+},
+
+
+Americas:{
+
+  start:1800,
+
+  fullColor:2000,
+
+  count:61,
+
+  color:
+  new THREE.Color(
+    "#b97948"
+  ),
+
+  description:
+  "Landscape images connected to North and South America across painting, photography, personal images and digital media."
+
+}
+
+
+};
+
+
+
+/* =========================================================
+SCENE
+========================================================= */
+
+const scene =
+new THREE.Scene();
+
+
+
+/* =========================================================
+CAMERA
+========================================================= */
+
+const camera =
+new THREE.PerspectiveCamera(
+
+45,
+
+window.innerWidth /
+window.innerHeight,
+
+.1,
+
+100
+
+);
+
+
+camera.position.set(
+
+0,
+0,
+10
+
+);
+
+
+
+/* =========================================================
+RENDERER
+========================================================= */
+
+const renderer =
+new THREE.WebGLRenderer({
+
+antialias:true,
+
+alpha:true
+
+});
+
+
+renderer.setPixelRatio(
+
+Math.min(
+
+window.devicePixelRatio,
+
+2
+
+)
+
+);
+
+
+renderer.setSize(
+
+window.innerWidth,
+
+window.innerHeight
+
+);
+
+
+renderer.outputColorSpace =
+THREE.SRGBColorSpace;
+
+
+container.appendChild(
+
+renderer.domElement
+
+);
+
+
+
+/* =========================================================
+CONTROLS
+========================================================= */
+
+const controls =
+new OrbitControls(
+
+camera,
+
+renderer.domElement
+
+);
+
+
+controls.enableDamping =
+true;
+
+
+controls.dampingFactor =
+.05;
+
+
+controls.enablePan =
+false;
+
+
+controls.minDistance =
+5.5;
+
+
+controls.maxDistance =
+14;
+
+
+controls.rotateSpeed =
+.55;
+
+
+controls.zoomSpeed =
+.7;
+
+
+
+/* =========================================================
+LIGHTS
+========================================================= */
+
+const ambient =
+new THREE.AmbientLight(
+
+0xffffff,
+
+1.2
+
+);
+
+
+scene.add(
+ambient
+);
+
+
+const sun =
+new THREE.DirectionalLight(
+
+0xffffff,
+
+3
+
+);
+
+
+sun.position.set(
+
+-5,
+5,
+8
+
+);
+
+
+scene.add(
+sun
+);
+
+
+
+/* =========================================================
+EARTH GROUP
+========================================================= */
+
+const earthGroup =
+new THREE.Group();
+
+
+scene.add(
+earthGroup
+);
+
+
+
+/* =========================================================
+OCEAN SPHERE
+========================================================= */
+
+const oceanGeometry =
+new THREE.SphereGeometry(
+
+3,
+
+96,
+
+96
+
+);
+
+
+const oceanGray =
+new THREE.Color(
+"#56595b"
+);
+
+
+const oceanBlue =
+new THREE.Color(
+"#216fa4"
+);
+
+
+const oceanMaterial =
+new THREE.MeshStandardMaterial({
+
+color:
+oceanGray.clone(),
+
+roughness:.82,
+
+metalness:0
+
+});
+
+
+const ocean =
+new THREE.Mesh(
+
+oceanGeometry,
+
+oceanMaterial
+
+);
+
+
+earthGroup.add(
+ocean
+);
+
+
+
+/* =========================================================
+ATMOSPHERE
+========================================================= */
+
+const atmosphereGeometry =
+new THREE.SphereGeometry(
+
+3.04,
+
+96,
+
+96
+
+);
+
+
+const atmosphereMaterial =
+new THREE.MeshBasicMaterial({
+
+color:
+0xbfdfff,
+
+transparent:true,
+
+opacity:.035,
+
+side:
+THREE.BackSide
+
+});
+
+
+const atmosphere =
+new THREE.Mesh(
+
+atmosphereGeometry,
+
+atmosphereMaterial
+
+);
+
+
+earthGroup.add(
+atmosphere
+);
+
+
+
+/* =========================================================
+LAND GEOMETRY
+
+We're creating simplified geographic continent silhouettes
+directly on the sphere.
+
+These are intentionally stylized for the prototype.
+========================================================= */
+
+
+/* =========================================================
+LATITUDE / LONGITUDE TO 3D
+========================================================= */
+
+function latLonToVector3(
+
+lat,
+
+lon,
+
+radius=3.025
+
+){
+
+const phi =
+
+(90-lat) *
+Math.PI/180;
+
+
+const theta =
+
+(lon+180) *
+Math.PI/180;
+
+
+const x =
+
+-radius *
+
+Math.sin(phi) *
+
+Math.cos(theta);
+
+
+const y =
+
+radius *
+
+Math.cos(phi);
+
+
+const z =
+
+radius *
+
+Math.sin(phi) *
+
+Math.sin(theta);
+
+
+return new THREE.Vector3(
+
+x,
+y,
+z
+
+);
+
+}
+
+
+
+/* =========================================================
+CREATE LAND DOT
+
+Using many small surface points lets us create recognizable
+continent silhouettes that correctly curve around the globe.
+========================================================= */
+
+const landMeshes = [];
+
+
+const landGeometry =
+new THREE.SphereGeometry(
+
+.075,
+
+10,
+
+10
+
+);
+
+
+
+function createLandPoint(
+
+region,
+
+lat,
+
+lon
+
+){
+
+const material =
+new THREE.MeshStandardMaterial({
+
+color:
+0x7b7b7b,
+
+roughness:.85,
+
+metalness:0
+
+});
+
+
+const point =
+new THREE.Mesh(
+
+landGeometry,
+
+material
+
+);
+
+
+const position =
+latLonToVector3(
+
+lat,
+
+lon
+
+);
+
+
+point.position.copy(
+position
+);
+
+
+/*
+Make the small land piece
+point away from Earth's center.
+*/
+
+point.quaternion.setFromUnitVectors(
+
+new THREE.Vector3(
+0,
+1,
+0
+),
+
+position
+.clone()
+.normalize()
+
+);
+
+
+point.userData.region =
+region;
+
+
+point.userData.active =
+false;
+
+
+earthGroup.add(
+point
+);
+
+
+landMeshes.push(
+point
+);
+
+}
+
+
+
+/* =========================================================
+CONTINENT MAPS
+
+Each function describes a rough geographic silhouette.
+
+The points follow latitude/longitude so they actually
+wrap around the 3D sphere.
+========================================================= */
+
+
+/* =========================================================
+ASIA
+========================================================= */
+
+for(
+let lat=-5;
+lat<=70;
+lat+=4
+){
+
+for(
+let lon=30;
+lon<=150;
+lon+=4
+){
+
+let inside = false;
+
+
+/* MAIN ASIA */
+
+if(
+
+lat > 5 &&
+
+lat < 65 &&
+
+lon > 45 &&
+
+lon < 140
+
+){
+
+inside = true;
+
+}
+
+
+/* NORTH ASIA */
+
+if(
+
+lat > 50 &&
+
+lon > 35 &&
+
+lon < 170
+
+){
+
+inside = true;
+
+}
+
+
+/* INDIA */
+
+if(
+
+lat > 8 &&
+lat < 30 &&
+
+lon > 68 &&
+lon < 90
+
+){
+
+inside = true;
+
+}
+
+
+/* SOUTHEAST ASIA */
+
+if(
+
+lat > -5 &&
+lat < 25 &&
+
+lon > 95 &&
+lon < 125
+
+){
+
+inside = true;
+
+}
+
+
+/* CUT SOUTHWEST CORNER */
+
+if(
+
+lat < 15 &&
+lon < 65
+
+){
+
+inside = false;
+
+}
+
+
+/* CUT NORTHEAST */
+
+if(
+
+lat > 62 &&
+lon > 145
+
+){
+
+inside = false;
+
+}
+
+
+if(inside){
+
+createLandPoint(
+
+"Asia",
+
+lat,
+
+lon
+
+);
+
+}
+
+}
+
+}
+
+
+
+/* =========================================================
+EUROPE
+========================================================= */
+
+for(
+let lat=35;
+lat<=70;
+lat+=3.5
+){
+
+for(
+let lon=-12;
+lon<=42;
+lon+=3.5
+){
+
+let inside =
+
+lat > 36 &&
+
+lat < 68 &&
+
+lon > -12 &&
+
+lon < 42;
+
+
+/* MEDITERRANEAN CUT */
+
+if(
+
+lat < 43 &&
+lon > 15
+
+){
+
+inside = false;
+
+}
+
+
+/* NORTHEAST */
+
+if(
+
+lat > 62 &&
+lon > 30
+
+){
+
+inside = false;
+
+}
+
+
+if(inside){
+
+createLandPoint(
+
+"Europe",
+
+lat,
+
+lon
+
+);
+
+}
+
+}
+
+}
+
+
+
+/* =========================================================
+AFRICA
+========================================================= */
+
+for(
+let lat=-35;
+lat<=37;
+lat+=3.7
+){
+
+for(
+let lon=-18;
+lon<=52;
+lon+=3.7
+){
+
+let width;
+
+
+/*
+Africa gets narrower
+toward north and south.
+*/
+
+if(lat > 10){
+
+width =
+32 -
+(lat-10)*.35;
+
+}
+
+else{
+
+width =
+31 -
+Math.abs(lat)*.45;
+
+}
+
+
+let inside =
+
+Math.abs(
+lon-18
+) < width;
+
+
+if(
+
+lat < -25 &&
+lon < 10
+
+){
+
+inside = false;
+
+}
+
+
+if(
+
+lat > 28 &&
+lon > 32
+
+){
+
+inside = false;
+
+}
+
+
+if(inside){
+
+createLandPoint(
+
+"Africa",
+
+lat,
+
+lon
+
+);
+
+}
+
+}
+
+}
+
+
+
+/* =========================================================
+NORTH AMERICA
+========================================================= */
+
+for(
+let lat=10;
+lat<=72;
+lat+=4
+){
+
+for(
+let lon=-165;
+lon<=-55;
+lon+=4
+){
+
+let inside = false;
+
+
+if(
+
+lat > 25 &&
+lat < 70 &&
+
+lon > -150 &&
+lon < -60
+
+){
+
+inside = true;
+
+}
+
+
+/* CANADA / ALASKA */
+
+if(
+
+lat > 50 &&
+
+lon > -165 &&
+lon < -60
+
+){
+
+inside = true;
+
+}
+
+
+/* MEXICO */
+
+if(
+
+lat > 15 &&
+lat < 32 &&
+
+lon > -120 &&
+lon < -85
+
+){
+
+inside = true;
+
+}
+
+
+/* REMOVE LOWER EAST */
+
+if(
+
+lat < 25 &&
+lon > -90
+
+){
+
+inside = false;
+
+}
+
+
+if(inside){
+
+createLandPoint(
+
+"Americas",
+
+lat,
+
+lon
+
+);
+
+}
+
+}
+
+}
+
+
+
+/* =========================================================
+SOUTH AMERICA
+========================================================= */
+
+for(
+let lat=-55;
+lat<=12;
+lat+=3.7
+){
+
+for(
+let lon=-82;
+lon<=-35;
+lon+=3.7
+){
+
+const centerLon =
+
+-60 +
+
+lat*.12;
+
+
+const width =
+
+18 -
+
+Math.max(
+0,
+-lat
+)*.16;
+
+
+let inside =
+
+Math.abs(
+
+lon -
+centerLon
+
+) < width;
+
+
+if(
+
+lat < -45 &&
+lon < -68
+
+){
+
+inside = false;
+
+}
+
+
+if(inside){
+
+createLandPoint(
+
+"Americas",
+
+lat,
+
+lon
+
+);
+
+}
+
+}
+
+}
+
+
+
+/* =========================================================
+INITIAL EARTH ROTATION
+========================================================= */
+
+earthGroup.rotation.y =
+-.35;
+
+
+earthGroup.rotation.x =
+.05;
+
+
+
+/* =========================================================
+GET ERA
+========================================================= */
+
+function getEra(year){
+
+
+if(year < 1500){
+
+return{
+
+start:1200,
+
+end:1500
+
+};
+
+}
+
+
+if(year < 1700){
+
+return{
+
+start:1500,
+
+end:1700
+
+};
+
+}
+
+
+if(year < 1800){
+
+return{
+
+start:1700,
+
+end:1800
+
+};
+
+}
+
+
+if(year < 1900){
+
+return{
+
+start:1800,
+
+end:1900
+
+};
+
+}
+
+
+if(year < 2000){
+
+return{
+
+start:1900,
+
+end:2000
+
+};
+
+}
+
+
+return{
+
+start:2000,
+
+end:2026
+
+};
+
+}
+
+
+
+/* =========================================================
+UPDATE TIMELINE
+========================================================= */
+
+function updateTimeline(){
+
+
+const year =
+Number(
+timeline.value
+);
+
+
+const era =
+getEra(
+year
+);
+
+
+eraText.textContent =
+
+`${era.start} — ${era.end}`;
+
+
+
+/* =======================================================
+OCEAN COLOR
+======================================================= */
+
+const oceanProgress =
+
+THREE.MathUtils.clamp(
+
+(year-1200) /
+
+(2026-1200),
+
+0,
+
+1
+
+);
+
+
+oceanMaterial.color
+
+.copy(
+oceanGray
+)
+
+.lerp(
+
+oceanBlue,
+
+oceanProgress
+
+);
+
+
+
+/* =======================================================
+LAND COLOR
+======================================================= */
+
+landMeshes.forEach(
+
+point => {
+
+
+const region =
+point.userData.region;
+
+
+const data =
+regionData[
+region
+];
+
+
+const progress =
+
+THREE.MathUtils.clamp(
+
+(year-data.start) /
+
+(data.fullColor-data.start),
+
+0,
+
+1
+
+);
+
+
+const gray =
+new THREE.Color(
+"#777777"
+);
+
+
+point.material.color
+
+.copy(
+gray
+)
+
+.lerp(
+
+data.color,
+
+progress
+
+);
+
+
+point.userData.active =
+
+year >=
+data.start;
+
+
+}
+
+);
+
+
+selectedRegion =
+null;
+
+
+regionPanel
+.classList
+.remove(
+"visible"
+);
+
+}
+
+
+
+/* =========================================================
+TIMELINE EVENT
+========================================================= */
+
+timeline.addEventListener(
+
+"input",
+
+updateTimeline
+
+);
+
+
+
+/* =========================================================
+RAYCASTING
+========================================================= */
+
+const raycaster =
+new THREE.Raycaster();
+
+
+const mouse =
+new THREE.Vector2();
+
+
+let selectedRegion =
+null;
+
+
+let mouseDownPosition = {
+
+x:0,
+
+y:0
+
+};
+
+
+
+/* =========================================================
+POINTER DOWN
+
+Used so dragging Earth doesn't accidentally count as click.
+========================================================= */
+
+renderer.domElement
+.addEventListener(
+
+"pointerdown",
+
+event => {
+
+
+mouseDownPosition.x =
+event.clientX;
+
+
+mouseDownPosition.y =
+event.clientY;
+
+
+}
+
+);
+
+
+
+/* =========================================================
+MOUSE POSITION
+========================================================= */
+
+function setMouse(
+event
+){
+
+
+mouse.x =
+
+(
+event.clientX /
+window.innerWidth
+) * 2 - 1;
+
+
+mouse.y =
+
+-(
+event.clientY /
+window.innerHeight
+) * 2 + 1;
+
+}
+
+
+
+/* =========================================================
+FIND REGION UNDER MOUSE
+========================================================= */
+
+function findRegion(
+event
+){
+
+
+setMouse(
+event
+);
+
+
+raycaster.setFromCamera(
+
+mouse,
+
+camera
+
+);
+
+
+const hits =
+raycaster.intersectObjects(
+
+landMeshes,
+
+false
+
+);
+
+
+for(
+const hit of hits
+){
+
+
+if(
+hit.object.userData.active
+){
+
+return hit.object;
+
+}
+
+}
+
+
+return null;
+
+}
+
+
+
+/* =========================================================
+HOVER
+========================================================= */
+
+renderer.domElement
+.addEventListener(
+
+"pointermove",
+
+event => {
+
+
+const hit =
+findRegion(
+event
+);
+
+
+if(hit){
+
+
+hoverLabel.textContent =
+hit.userData.region
+.toUpperCase();
+
+
+hoverLabel.style.left =
+event.clientX +
+"px";
+
+
+hoverLabel.style.top =
+event.clientY +
+"px";
+
+
+hoverLabel.classList.add(
+"visible"
+);
+
+
+renderer.domElement.style.cursor =
+"pointer";
+
+
+}
+
+else{
+
+
+hoverLabel.classList.remove(
+"visible"
+);
+
+
+renderer.domElement.style.cursor =
+"grab";
+
+
+}
+
+
+}
+
+);
+
+
+
+/* =========================================================
+CLICK REGION
+========================================================= */
+
+renderer.domElement
+.addEventListener(
+
+"pointerup",
+
+event => {
+
+
+const movement =
+
+Math.hypot(
+
+event.clientX -
+mouseDownPosition.x,
+
+event.clientY -
+mouseDownPosition.y
+
+);
+
+
+/*
+If the mouse moved more than 6px,
+the user was rotating Earth.
+*/
+
+if(
+movement > 6
+){
+
+return;
+
+}
+
+
+const hit =
+findRegion(
+event
+);
+
+
+if(!hit){
+
+return;
+
+}
+
+
+selectedRegion =
+hit.userData.region;
+
+
+const data =
+regionData[
+selectedRegion
+];
+
+
+regionName.textContent =
+selectedRegion;
+
+
+regionCount.textContent =
+
+`${data.count} works in collection`;
+
+
+regionPanel
+.classList
+.add(
+"visible"
+);
+
+
+}
+
+);
+
+
+
+/* =========================================================
+CAMERA ANIMATION
+========================================================= */
+
+let cameraAnimation =
+null;
+
+
+function animateCamera(
+
+destination,
+
+duration,
+
+callback=null
+
+){
+
+
+cameraAnimation = {
+
+
+start:
+camera.position.clone(),
+
+
+end:
+destination.clone(),
+
+
+startTime:
+performance.now(),
+
+
+duration,
+
+
+callback
+
+
+};
+
+}
+
+
+
+/* =========================================================
+EXPLORE COLLECTION
+========================================================= */
+
+exploreButton
+.addEventListener(
+
+"click",
+
+() => {
+
+
+if(
+!selectedRegion
+){
+
+return;
+
+}
+
+
+controls.enabled =
+false;
+
+
+regionPanel
+.classList
+.remove(
+"visible"
+);
+
+
+
+/* =======================================================
+GET CENTER OF SELECTED REGION
+======================================================= */
+
+const regionPoints =
+landMeshes.filter(
+
+point =>
+
+point.userData.region ===
+selectedRegion
+
+);
+
+
+const center =
+new THREE.Vector3();
+
+
+regionPoints.forEach(
+
+point => {
+
+
+const worldPosition =
+new THREE.Vector3();
+
+
+point.getWorldPosition(
+worldPosition
+);
+
+
+center.add(
+worldPosition
+);
+
+
+}
+
+);
+
+
+center.divideScalar(
+
+regionPoints.length
+
+);
+
+
+const direction =
+center
+.clone()
+.normalize();
+
+
+const destination =
+direction
+.multiplyScalar(
+4.5
+);
+
+
+
+/* =======================================================
+ZOOM TOWARD REGION
+======================================================= */
+
+animateCamera(
+
+destination,
+
+1000,
+
+() => {
+
+openCollection(
+selectedRegion
+);
+
+}
+
+);
+
+
+}
+
+);
+
+
+
+/* =========================================================
+OPEN COLLECTION PAGE
+========================================================= */
+
+function openCollection(
+region
+){
+
+
+const data =
+regionData[
+region
+];
+
+
+const era =
+getEra(
+
+Number(
+timeline.value
+)
+
+);
+
+
+collectionTitle.textContent =
+region.toUpperCase();
+
+
+collectionPeriod.textContent =
+
+`${era.start} — ${era.end}`;
+
+
+collectionDescription.textContent =
+data.description;
+
+
+buildGallery(
+region
+);
+
+
+collectionPage
+.classList
+.add(
+"open"
+);
+
+
+}
+
+
+
+/* =========================================================
+ARTWORK DATA — EDIT ONLY THIS SECTION
+
+HOW TO USE:
+1. Create an "images" folder beside this HTML file.
+2. Put your JPG/PNG/WebP files inside that folder.
+3. Change image, title, country, year, and description below.
+4. Copy/paste an artwork block to add more images.
+========================================================= */
+
+const artworkData = {
+
+  Asia: [
+    {
+      image: "shui mo/1.jpg",
+      title: "Your Asia Image Title",
+      country: "China",
+      year: "c. 1000",
+      description: "Write your description of this landscape here."
+    },
+    {
+      image: "shui mo/2.jpg",
+      title: "Your Second Asia Image",
+      country: "Japan",
+      year: "1830",
+      description: "Write your description here."
+    },
+    {
+      image: "shui mo/3.jpg",
+      title: "Your Second Asia Image",
+      country: "Japan",
+      year: "1830",
+      description: "Write your description here."
+    },
+    {
+      image: "shui mo/4.jpg",
+      title: "Your Third Asia Image",
+      country: "India",
+      year: "2020",
+      description: "Write your description here."
+    },
+    {
+      image: "shui mo/5.jpg",
+      title: "Your Second Asia Image",
+      country: "Japan",
+      year: "1830",
+      description: "Write your description here."
+    },
+    {
+      image: "shui mo/6.jpg",
+      title: "Your Third Asia Image",
+      country: "India",
+      year: "2020",
+      description: "Write your description here."
+    },
+    {
+      image: "shui mo/7.jpg",
+      title: "Your Second Asia Image",
+      country: "Japan",
+      year: "1830",
+      description: "Write your description here."
+    },
+    {
+      image: "shui mo/8.jpg",
+      title: "Your Third Asia Image",
+      country: "India",
+      year: "2020",
+      description: "Write your description here."
+    }, 
+    {
+      image: "shui mo/9.jpg",
+      title: "Your Second Asia Image",
+      country: "Japan",
+      year: "1830",
+      description: "Write your description here."
+    },
+    {
+      image: "shui mo/10.jpg",
+      title: "Your Third Asia Image",
+      country: "India",
+      year: "2020",
+      description: "Write your description here."
+    }
+
+    
+    
+  ],
+
+  Europe: [
+    {
+      image: "Painting/1.jpg",
+      title: "Your Europe Image Title",
+      country: "France",
+      year: "1889",
+      description: "Write your description here."
+    },
+    {
+      image: "Painting/2.jpg",
+      title: "Your Europe Image Title",
+      country: "Italy",
+      year: "1901",
+      description: "Write your description here."
+    },
+     {
+      image: "Painting/3.jpg",
+      title: "Your Europe Image Title",
+      country: "Italy",
+      year: "1901",
+      description: "Write your description here."
+    },
+    {
+      image: "Painting/4.jpg",
+      title: "Your Europe Image Title",
+      country: "Germany",
+      year: "1920",
+      description: "Write your description here."
+    },
+    {
+      image: "Painting/5.jpg",
+      title: "Your Europe Image Title",
+      country: "Spain",
+      year: "1950",
+      description: "Write your description here."
+    },
+    {
+      image: "Painting/6.jpg",
+      title: "Your Europe Image Title",
+      country: "United Kingdom",
+      year: "1975",
+      description: "Write your description here."
+    },
+     {
+      image: "Painting/7.jpg",
+      title: "Your Europe Image Title",
+      country: "Italy",
+      year: "1901",
+      description: "Write your description here."
+    },
+    {
+      image: "Painting/8.jpg",
+      title: "Your Europe Image Title",
+      country: "Germany",
+      year: "1920",
+      description: "Write your description here."
+    },
+    {
+      image: "Painting/9.jpg",
+      title: "Your Europe Image Title",
+      country: "Spain",
+      year: "1950",
+      description: "Write your description here."
+    },
+    {
+      image: "Painting/10.jpg",
+      title: "Your Europe Image Title",
+      country: "United Kingdom",
+      year: "1975",
+      description: "Write your description here."
+    }
+
+  ],
+
+  Africa: [
+    {
+      image: "images/africa-01.jpg",
+      title: "Your Africa Image Title",
+      country: "Morocco",
+      year: "2023",
+      description: "Write your description here."
+    }
+  ],
+
+  Americas: [
+    {
+      image: "Photography/1.avif",
+      title: "Your Americas Image Title",
+      country: "United States",
+      year: "2026",
+      description: "Write your description here."
+    },
+    {
+      image: "Photography/2.avif",
+      title: "Your Americas Image Title",
+      country: "Canada",
+      year: "2025",
+      description: "Write your description here."
+    },
+    {
+      image: "Photography/3.avif",
+      title: "Your Americas Image Title",
+      country: "Brazil",
+      year: "2024",
+      description: "Write your description here."
+    },
+    {
+      image: "Photography/4.avif",
+      title: "Your Americas Image Title",
+      country: "Mexico",
+      year: "2023",
+      description: "Write your description here."
+    },
+    {
+      image: "Photography/5.jpg",
+      title: "Your Americas Image Title",
+      country: "Argentina",
+      year: "2022",
+      description: "Write your description here."
+    },
+    {
+      image: "Photography/6.jpg",
+      title: "Your Americas Image Title",
+      country: "United States",
+      year: "2026",
+      description: "Write your description here."
+    },
+    {
+      image: "Photography/7.avif",
+      title: "Your Americas Image Title",
+      country: "Canada",
+      year: "2025",
+      description: "Write your description here."
+    },
+    {
+      image: "Photography/8.jpg",
+      title: "Your Americas Image Title",
+      country: "Brazil",
+      year: "2024",
+      description: "Write your description here."
+    },
+    {
+      image: "Photography/9.jpg",
+      title: "Your Americas Image Title",
+      country: "Mexico",
+      year: "2023",
+      description: "Write your description here."
+    },
+    {
+      image: "Photography/10.avif",
+      title: "Your Americas Image Title",
+      country: "Argentina",
+      year: "2022",
+      description: "Write your description here."
+    },
+
+  ]
+
+};
+
+
+/* =========================================================
+BUILD ARTWORK GALLERY
+========================================================= */
+
+function buildGallery(region){
+
+  artworkGrid.innerHTML = "";
+
+  const works = artworkData[region] || [];
+
+  works.forEach((art, index) => {
+
+    const artwork = document.createElement("article");
+    const i = index + 1;
+    let layout = "";
+
+    if(i % 6 === 0){
+      layout = "large";
+    }
+    else if(i % 5 === 0){
+      layout = "small offset";
+    }
+    else if(i % 3 === 0){
+      layout = "offset";
+    }
+
+    artwork.className = `artwork ${layout}`;
+
+    artwork.innerHTML = `
+      <div class="artImage">
+        <img src="${art.image}" alt="${art.title}">
+      </div>
+
+      <div class="artNumber">
+        ${String(i).padStart(3,"0")}
+      </div>
+
+      <div class="artTitle">
+        ${art.title}
+      </div>
+
+      <div class="artMeta">
+        ${art.country}<br>
+        ${art.year}
+      </div>
+
+      <div class="artDescription">
+        ${art.description || ""}
+      </div>
+    `;
+
+    artworkGrid.appendChild(artwork);
+  });
+}
+
+
+/* =========================================================
+BACK TO EARTH
+========================================================= */
+
+backButton
+.addEventListener(
+
+"click",
+
+() => {
+
+
+collectionPage
+.classList
+.remove(
+"open"
+);
+
+
+animateCamera(
+
+new THREE.Vector3(
+
+0,
+0,
+10
+
+),
+
+900,
+
+() => {
+
+controls.enabled =
+true;
+
+}
+
+);
+
+
+}
+
+);
+
+
+
+/* =========================================================
+WINDOW RESIZE
+========================================================= */
+
+window.addEventListener(
+
+"resize",
+
+() => {
+
+
+camera.aspect =
+
+window.innerWidth /
+
+window.innerHeight;
+
+
+camera.updateProjectionMatrix();
+
+
+renderer.setSize(
+
+window.innerWidth,
+
+window.innerHeight
+
+);
+
+
+}
+
+);
+
+
+
+/* =========================================================
+ANIMATION LOOP
+========================================================= */
+
+function animate(){
+
+
+requestAnimationFrame(
+animate
+);
+
+
+
+/* =======================================================
+CAMERA ZOOM ANIMATION
+======================================================= */
+
+if(
+cameraAnimation
+){
+
+
+const now =
+performance.now();
+
+
+const progress =
+
+Math.min(
+
+(
+now -
+cameraAnimation.startTime
+) /
+
+cameraAnimation.duration,
+
+1
+
+);
+
+
+
+/* smooth easing */
+
+const eased =
+
+progress < .5
+
+?
+
+2 *
+progress *
+progress
+
+:
+
+1 -
+
+Math.pow(
+
+-2 *
+progress +
+2,
+
+2
+
+) / 2;
+
+
+
+camera.position.lerpVectors(
+
+cameraAnimation.start,
+
+cameraAnimation.end,
+
+eased
+
+);
+
+
+camera.lookAt(
+
+0,
+0,
+0
+
+);
+
+
+
+if(
+progress >= 1
+){
+
+
+const callback =
+cameraAnimation.callback;
+
+
+cameraAnimation =
+null;
+
+
+if(
+callback
+){
+
+callback();
+
+}
+
+
+}
+
+
+}
+
+
+
+/* =======================================================
+UPDATE CONTROLS
+======================================================= */
+
+controls.update();
+
+
+
+/* =======================================================
+RENDER
+======================================================= */
+
+renderer.render(
+
+scene,
+
+camera
+
+);
+
+
+}
+
+
+
+/* =========================================================
+START
+========================================================= */
+
+updateTimeline();
+
+
+animate();
+
+
+</script>
+
+
+</body>
+
+</html>
